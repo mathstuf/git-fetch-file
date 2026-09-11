@@ -907,7 +907,7 @@ func fetchRepositoryGroup(repository, commit string, entries []*ConfigSection, f
 	tempDir := getTempDir()
 	os.MkdirAll(tempDir, 0755)
 
-	cloneDir, err := os.MkdirTemp(tempDir, "clone-*")
+	tmpParent, err := os.MkdirTemp(tempDir, "clone-*")
 	if err != nil {
 		for _, entry := range entries {
 			results = append(results, FileResult{
@@ -921,7 +921,8 @@ func fetchRepositoryGroup(repository, commit string, entries []*ConfigSection, f
 		}
 		return results
 	}
-	defer os.RemoveAll(cloneDir)
+	cloneDir := filepath.Join(tmpParent, "repo")
+	defer os.RemoveAll(tmpParent)
 
 	fetchedCommit, err := cloneRepositoryAtCommit(repository, commit, cloneDir)
 	if err != nil {

@@ -480,8 +480,8 @@ def fetch_file(repository, path, commit, is_glob=False, force=False, target_dir=
         return fetched_commit
 
     # Ensure TEMP_DIR exists before using it for TemporaryDirectory
-    with tempfile.TemporaryDirectory(dir=temp_dir) as temp_clone_dir:
-        clone_dir = Path(temp_clone_dir)
+    with tempfile.TemporaryDirectory(dir=temp_dir) as tmp_parent:
+        clone_dir = Path(tmp_parent) / "repo"
         try:
             # Clone the repository and get the actual commit hash
             fetched_commit = clone_repository_at_commit(repository, commit, clone_dir)
@@ -701,8 +701,8 @@ def pull_files(force=False, dry_run=False, jobs=None, commit_message=None, edit=
         temp_dir = get_temp_dir()
         temp_dir.mkdir(parents=True, exist_ok=True)
 
-        with tempfile.TemporaryDirectory(dir=temp_dir) as temp_clone_dir:
-            clone_dir = Path(temp_clone_dir)
+        with tempfile.TemporaryDirectory(dir=temp_dir) as tmp_parent:
+            clone_dir = Path(tmp_parent) / "repo"
             try:
                 fetched_commit = clone_repository_at_commit(repository, commit, clone_dir)
 
