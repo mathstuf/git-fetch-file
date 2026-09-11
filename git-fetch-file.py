@@ -27,8 +27,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import tempfile
 
 REMOTE_FILE_MANIFEST = ".git-remote-files"
-CACHE_DIR = ".git/fetch-file-cache"
-TEMP_DIR = ".git/fetch-file-temp"
+CACHE_DIR = "fetch-file-cache"
+TEMP_DIR = "fetch-file-temp"
 
 
 def load_remote_files():
@@ -1108,20 +1108,34 @@ def expand_repo_url(url):
         return url
 
 
+def get_git_dir():
+    """Get the git directory (handles worktrees where .git is a file)."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--absolute-git-dir"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return Path(result.stdout.strip())
+    except subprocess.CalledProcessError:
+        pass
+
+
 def get_cache_dir():
-    """Get the cache directory path relative to git repository root."""
-    git_root = get_git_root()
-    if git_root:
-        return git_root / CACHE_DIR
+    """Get the cache directory path."""
+    git_dir = get_git_dir()
+    if git_dir:
+        return git_dir / CACHE_DIR
     else:
         return Path(CACHE_DIR)
 
 
 def get_temp_dir():
-    """Get the temporary directory path relative to git repository root."""
-    git_root = get_git_root()
-    if git_root:
-        return git_root / TEMP_DIR
+    """Get the temporary directory path."""
+    git_dir = get_git_dir()
+    if git_dir:
+        return git_dir / TEMP_DIR
     else:
         return Path(TEMP_DIR)
 

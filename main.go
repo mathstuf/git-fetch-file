@@ -21,8 +21,8 @@ import (
 
 const (
 	remoteFileManifest = ".git-remote-files"
-	cacheDir           = ".git/fetch-file-cache"
-	tempDir            = ".git/fetch-file-temp"
+	cacheDir           = "fetch-file-cache"
+	tempDir            = "fetch-file-temp"
 )
 
 type ConfigSection struct {
@@ -1280,6 +1280,15 @@ func getTargetPathAndCacheKey(path, targetDir string, isGlob bool, forceType str
 	return targetPath, cacheKey
 }
 
+func getGitDir() string {
+	cmd := exec.Command("git", "rev-parse", "--absolute-git-dir")
+	output, err := cmd.Output()
+	if err != nil {
+		return "."
+	}
+	return strings.TrimSpace(string(output))
+}
+
 func getGitRoot() string {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	output, err := cmd.Output()
@@ -1290,13 +1299,13 @@ func getGitRoot() string {
 }
 
 func getCacheDir() string {
-	gitRoot := getGitRoot()
-	return filepath.Join(gitRoot, cacheDir)
+	gitDir := getGitDir()
+	return filepath.Join(gitDir, cacheDir)
 }
 
 func getTempDir() string {
-	gitRoot := getGitRoot()
-	return filepath.Join(gitRoot, tempDir)
+	gitDir := getGitDir()
+	return filepath.Join(gitDir, tempDir)
 }
 
 func getManifestTargetPath(targetDir, currentDir string) string {
